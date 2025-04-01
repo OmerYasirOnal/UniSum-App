@@ -1,0 +1,66 @@
+// Basic Translations
+"email" = "Email";
+"password" = "Password";
+"login" = "Login";
+"logout" = "Logout";
+"signup" = "Sign Up";
+"forgot_password" = "Forgot Password";
+"university" = "University";
+"department" = "Department";
+"confirm_password" = "Confirm Password";
+"verification_alert_message" = "Registration completed. Please click the verification link sent to %@.";
+
+// App Info
+"app_slogan" = "Manage your academic journey";
+"welcome_back" = "Welcome Back";
+"create_account" = "Create Account";
+"back" = "Back";
+"cancel" = "Cancel";
+"ok" = "OK";
+"continue_without_login" = "Continue without Login";
+"language" = "Language";
+"no_account" = "Don't have an account?";
+
+// Password Reset
+"forgot_password_title" = "Reset Password";
+"forgot_password_email_placeholder" = "Enter your email";
+"forgot_password_description" = "Enter your email address and we'll send you a link to reset your password";
+"forgot_password_submit_button" = "Reset Password";
+"forgot_password_success_message" = "Reset link sent to your email";
+"forgot_password_invalid_email_error" = "Please enter a valid email";
+"forgot_password_email_not_found_error" = "Email not found";
+"forgot_password_unknown_error" = "An error occurred. Please try again";
+
+// Term List View
+"your_terms" = "Your Terms";
+"delete" = "Delete";
+"loading_terms" = "Loading your terms...";
+"try_again" = "Try Again";
+"no_terms" = "You don't have any terms yet";
+"add_term_instruction" = "Tap the plus button below to add your first term";
+"term_format" = "Term %@";
+"term_credits_format" = "%@ credits";
+"student" = "Student";
+"offline_calculator" = "Offline Calculator";
+
+// Class Levels
+"class_level_pre" = "Preparatory Class";
+"class_level_1" = "First Year";
+"class_level_2" = "Second Year";
+"class_level_3" = "Third Year";
+"class_level_4" = "Fourth Year";
+
+// Connection Error Messages
+"connection_error_no_connection_title" = "Connection Problem";
+"connection_error_no_connection_message" = "Check your internet connection and try again.";
+"connection_error_filtered_title" = "Network Access Blocked";
+"connection_error_filtered_message" = "Your current network (school/cafe) is blocking access to duckdns.org. Try sing mobile data or connect with a VPN.";
+"connection_error_server_title" = "Server Error";
+"connection_error_server_message" = "Our servers are currently under maintenance. Please try again later.";
+"connection_error_other_title" = "Connection Error";
+"connection_error_other_message" = "An error occurred during connection. Please try again.";
+"connection_error_timeout_title" = "Request Timeout";
+"connection_error_timeout_message" = "The connection timed out. Server might be busy or your connection is slow. Please try again later.";
+"connection_alert_use_vpn" = "Use VPN";
+"connection_alert_close" = "OK";
+"error_timeout" = "The request timed out. Please try again later."; 

@@ -166,7 +166,7 @@ struct CourseDetailView: View {
                         Text("current_grade")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        // ✅ Doğrudan GradeScaleViewModel’dan gelen currentGrade
+                        // ✅ Doğrudan GradeScaleViewModel'dan gelen currentGrade
                         Text(gradeScaleViewModel.currentGrade)
                             .font(.title)
                             .fontWeight(.bold)

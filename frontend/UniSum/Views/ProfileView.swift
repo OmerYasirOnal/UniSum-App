@@ -9,6 +9,7 @@ struct ProfileView: View {
     @State private var toastMessage: String = "account_deleted"  // Localizable key
     @State private var toastType: Toast.ToastType = .success
     @State private var navigateToLogin = false           // Login ekranına yönlendirme
+    @State private var email: String = ""
 
     var body: some View {
         NavigationView {

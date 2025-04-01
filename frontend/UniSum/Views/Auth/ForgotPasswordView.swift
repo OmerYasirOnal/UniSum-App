@@ -11,43 +11,106 @@ struct ForgotPasswordView: View {
     @FocusState private var emailFocused: Bool
 
     var body: some View {
-        ZStack {
-            // Main content
-            VStack(spacing: 16) {
-                // Başlık: Şifre Sıfırlama
-                Text("forgot_password_title")  // Localized key, e.g. "Forgot Password"
-                    .font(.title)
-                    .bold()
-                    .padding(.bottom, 8)
-                // Email giriş alanı
-                TextField(LocalizedStringKey("forgot_password_email_placeholder"), text: $email)
-                    .autocapitalization(.none)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                    .disableAutocorrection(true)
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.5))
-                    )
-                    .accessibilityLabel(Text("forgot_password_email_placeholder"))
-                // Reset Password submission button
-                Button(action: submitReset) {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text("forgot_password_submit_button")  // Localized key, e.g. "Reset Password"
-                            .frame(maxWidth: .infinity)
-                    }
+        NavigationStack {
+            ZStack {
+                // Modern gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.white]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                .onTapGesture {
+                    emailFocused = false
                 }
+                
+                // Main content
+                VStack(spacing: 24) {
+                    // App icon
+                    Image(systemName: "lock.rotation")
+                        .font(.system(size: 60))
+                        .foregroundColor(.accentColor)
+                        .padding(.bottom, 5)
+                    
+                    // Başlık: Şifre Sıfırlama
+                    Text(LocalizedStringKey("forgot_password_title"))
+                        .font(.title)
+                        .bold()
+                        .padding(.bottom, 8)
+                    
+                    // Açıklama metni
+                    Text(LocalizedStringKey("forgot_password_description"))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 20)
+                    
+                    // Email giriş alanı
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(LocalizedStringKey("email"))
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                            .padding(.leading, 4)
+                        
+                        HStack {
+                            Image(systemName: "envelope")
+                                .foregroundColor(.secondary)
+                            
+                            TextField(LocalizedStringKey("forgot_password_email_placeholder"), text: $email)
+                                .autocapitalization(.none)
+                                .keyboardType(.emailAddress)
+                                .textContentType(.emailAddress)
+                                .disableAutocorrection(true)
+                                .focused($emailFocused)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .background(Color(.systemBackground).cornerRadius(12))
+                        )
+                        .accessibilityLabel(Text("forgot_password_email_placeholder"))
+                    }
+                    
+                    // Reset Password submission button
+                    Button(action: submitReset) {
+                        HStack {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .padding(.trailing, 5)
+                            }
+                            Text(LocalizedStringKey("forgot_password_submit_button"))
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding()
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.7)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundColor(.white)
+                    .cornerRadius(15)
+                    .shadow(color: Color.accentColor.opacity(0.3), radius: 5, x: 0, y: 2)
+                    .opacity(isValidEmail(email.trimmed) ? 1 : 0.6)
+                    .disabled(isLoading || !isValidEmail(email.trimmed))
+                    
+                    // Geri butonu
+                    Button(action: { dismiss() }) {
+                        Text(LocalizedStringKey("cancel"))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 8)
+                }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 40)
                 .disabled(isLoading)
-                .buttonStyle(.borderedProminent)
-                .cornerRadius(8)
             }
-            .padding()
-            .disabled(isLoading)
-
-            // If needed, you can also overlay a custom loading indicator here
+            .navigationBarHidden(true)
         }
         // Attach toast using the modifier: toast appears from top
         .toast(isShowing: $showToast, message: toastMessage, duration: 3.0)
@@ -63,6 +126,13 @@ struct ForgotPasswordView: View {
             withAnimation { showToast = true }
             return
         }
+        
+        // İnternet bağlantısı kontrolü
+        if !NetworkManager.shared.isConnected {
+            // İnternet bağlantısı yoksa, ToastView gösterme (ConnectionAlert zaten gösterilecek)
+            return
+        }
+        
         // Input is valid, proceed with request
         isLoading = true
 
@@ -79,9 +149,13 @@ struct ForgotPasswordView: View {
                 }
             } catch {
                 isLoading = false
+                
+                // Bağlantı hatası durumunda toast gösterme (ConnectionAlert zaten gösterilecek)
                 if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
-                    toastMessage = "forgot_password_network_error" // Localized key
-                } else if let resetError = error as? ResetPasswordError, resetError == .emailNotFound {
+                    return
+                }
+                
+                if let resetError = error as? ResetPasswordError, resetError == .emailNotFound {
                     toastMessage = "forgot_password_email_not_found_error" // Localized key
                 } else {
                     toastMessage = "forgot_password_unknown_error" // Localized key
@@ -113,3 +187,4 @@ struct ForgotPasswordView: View {
 enum ResetPasswordError: Error {
     case emailNotFound
 }
+

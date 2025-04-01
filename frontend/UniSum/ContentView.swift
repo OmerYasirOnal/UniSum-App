@@ -1,22 +1,37 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var authViewModel = AuthViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var languageManager: LanguageManager
     @State private var languageChanged = false
     
     var body: some View {
-        Group {
-            if authViewModel.isAuthenticated {
-                TermListView()
-                    .environmentObject(authViewModel)
-            } else {
-                LoginView()
-                    .environmentObject(authViewModel)
+        ZStack {
+            Group {
+                if authViewModel.isAuthenticated {
+                    TermListView()
+                } else {
+                    LoginView()
+                }
+            }
+            .environment(\.locale, .init(identifier: languageManager.selectedLanguage))
+            .id(languageManager.selectedLanguage)
+            
+            // Bağlantı hatası iletişim kutusu
+            if networkManager.showConnectionAlert {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        // Dışarı tıklandığında kapatma işlemi
+                        networkManager.dismissConnectionAlert()
+                    }
+                
+                ConnectionAlertView(networkManager: networkManager)
+                    .padding()
+                    .transition(.scale)
             }
         }
-        .environment(\.locale, .init(identifier: languageManager.selectedLanguage))
-        .id(languageManager.selectedLanguage)
         .onAppear {
             authViewModel.checkAuthentication()
             
@@ -32,5 +47,6 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("LanguageChanged"))) { _ in
             languageChanged.toggle()
         }
+        .animation(.easeInOut, value: networkManager.showConnectionAlert)
     }
 }

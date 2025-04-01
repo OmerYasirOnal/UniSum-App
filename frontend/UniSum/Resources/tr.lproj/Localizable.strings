@@ -1,0 +1,66 @@
+// Temel Çeviriler
+"email" = "E-posta";
+"password" = "Şifre";
+"login" = "Giriş Yap";
+"logout" = "Çıkış Yap";
+"signup" = "Kayıt Ol";
+"forgot_password" = "Şifremi Unuttum";
+"university" = "Üniversite";
+"department" = "Bölüm";
+"confirm_password" = "Şifre Tekrar";
+"verification_alert_message" = "Kayıt işleminiz tamamlandı. Lütfen %@ adresine gönderilen e-postadaki doğrulama bağlantısına tıklayın.";
+
+// Uygulama Bilgileri
+"app_slogan" = "Akademik yolculuğunuzu yönetin";
+"welcome_back" = "Tekrar Hoşgeldiniz";
+"create_account" = "Hesap Oluştur";
+"back" = "Geri";
+"cancel" = "İptal";
+"ok" = "Tamam";
+"continue_without_login" = "Giriş Yapmadan Devam Et";
+"language" = "Dil";
+"no_account" = "Hesabınız yok mu?";
+
+// Şifre Sıfırlama
+"forgot_password_title" = "Şifre Sıfırlama";
+"forgot_password_email_placeholder" = "E-posta adresinizi girin";
+"forgot_password_description" = "E-posta adresinizi girin, şifrenizi sıfırlamanız için bir bağlantı göndereceğiz";
+"forgot_password_submit_button" = "Şifremi Sıfırla";
+"forgot_password_success_message" = "Sıfırlama bağlantısı e-posta adresinize gönderildi";
+"forgot_password_invalid_email_error" = "Lütfen geçerli bir e-posta adresi girin";
+"forgot_password_email_not_found_error" = "E-posta adresi bulunamadı";
+"forgot_password_unknown_error" = "Bir hata oluştu. Lütfen tekrar deneyin";
+
+// Dönem Listesi
+"your_terms" = "Dönemleriniz";
+"delete" = "Sil";
+"loading_terms" = "Dönemleriniz yükleniyor...";
+"try_again" = "Tekrar Dene";
+"no_terms" = "Henüz hiç dönem eklemediniz";
+"add_term_instruction" = "İlk döneminizi eklemek için aşağıdaki artı butonuna dokunun";
+"term_format" = "Dönem %@";
+"term_credits_format" = "%@ kredi";
+"student" = "Öğrenci";
+"offline_calculator" = "Çevrimdışı Hesaplayıcı";
+
+// Sınıf Seviyeleri
+"class_level_pre" = "Hazırlık Sınıfı";
+"class_level_1" = "Birinci Sınıf";
+"class_level_2" = "İkinci Sınıf";
+"class_level_3" = "Üçüncü Sınıf";
+"class_level_4" = "Dördüncü Sınıf";
+
+// Bağlantı Hata Mesajları
+"connection_error_no_connection_title" = "Bağlantı Sorunu";
+"connection_error_no_connection_message" = "İnternet bağlantınızı kontrol edin ve tekrar deneyin.";
+"connection_error_filtered_title" = "Ağ Erişimi Engellendi";
+"connection_error_filtered_message" = "Bulunduğunuz ağ (okul/kafe) duckdns.org adresine erişimi engelliyor. Mobil veri kullanarak veya VPN ile bağlanmayı deneyin.";
+"connection_error_server_title" = "Sunucu Hatası";
+"connection_error_server_message" = "Şu anda sunucularımız bakım altındadır. Lütfen daha sonra tekrar deneyin.";
+"connection_error_other_title" = "Bağlantı Hatası";
+"connection_error_other_message" = "Bağlantı sırasında bir hata oluştu. Lütfen tekrar deneyin.";
+"connection_error_timeout_title" = "Zaman Aşımı";
+"connection_error_timeout_message" = "Bağlantı zaman aşımına uğradı. Sunucu yoğun olabilir veya bağlantınız yavaş olabilir. Lütfen daha sonra tekrar deneyin.";
+"connection_alert_use_vpn" = "VPN Kullan";
+"connection_alert_close" = "Tamam";
+"error_timeout" = "İstek zaman aşımına uğradı. Lütfen daha sonra tekrar deneyin."; 

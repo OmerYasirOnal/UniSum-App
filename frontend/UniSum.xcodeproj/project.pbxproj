@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		06287FD42D6B34C60022352A /* Exceptions for "UniSum" folder in "UniSum" target */ = {
+		06EA8E872D9C844F00F7F87C /* Exceptions for "UniSum" folder in "UniSum" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		06287F752D6B32F20022352A /* UniSum */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				06287FD42D6B34C60022352A /* Exceptions for "UniSum" folder in "UniSum" target */,
+				06EA8E872D9C844F00F7F87C /* Exceptions for "UniSum" folder in "UniSum" target */,
 			);
 			path = UniSum;
 			sourceTree = "<group>";

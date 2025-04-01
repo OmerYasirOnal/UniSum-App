@@ -36,9 +36,3 @@ extension String {
         self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
-
-struct SignupResponse: Codable {
-    let success: Bool
-    let message: String
-    let verificationLink: String?
-}

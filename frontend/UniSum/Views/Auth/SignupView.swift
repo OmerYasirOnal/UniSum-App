@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import UIKit
 
 struct SignupView: View {
     @Environment(\.dismiss) private var dismiss
@@ -11,6 +12,9 @@ struct SignupView: View {
     @State private var isLoading = false
     @State private var showToast: Bool = false         // Toast görünürlüğü
     @State private var toastMessage: String = ""       // Toast mesajı (localization key)
+    @State private var showVerificationAlert = false   // Doğrulama uyarısı
+    @State private var registeredEmail = ""            // Kayıt olan e-posta
+    @State private var showPassword = false           // Şifre görünürlüğü için
     @FocusState private var focusedField: Field?
     
     enum Field {
@@ -20,11 +24,16 @@ struct SignupView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemBackground)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        hideKeyboard()
-                    }
+                // Modern gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.white]),
+                    startPoint: .top, 
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                .onTapGesture {
+                    hideKeyboard()
+                }
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -33,7 +42,7 @@ struct SignupView: View {
                         signupButton
                         Spacer(minLength: 20)
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 25)
                 }
                 .scrollDismissesKeyboard(.immediately)
             }
@@ -52,64 +61,161 @@ struct SignupView: View {
         // Toast bildirimi, ekranın üst kısmından aşağı doğru kayarak görünecek.
         .toast(isShowing: $showToast, message: toastMessage, duration: 3.0)
         .animation(.easeInOut, value: showToast)
+        .alert(isPresented: $showVerificationAlert) {
+            Alert(
+                title: Text(LocalizedStringKey("registration_successful")),
+                message: Text(String(format: NSLocalizedString("verification_alert_message", comment: ""), registeredEmail)),
+                dismissButton: .default(Text(LocalizedStringKey("ok"))) {
+                    dismiss()
+                }
+            )
+        }
     }
     
     // MARK: - UI Components
     
     private var headerView: some View {
-        Text(LocalizedStringKey("create_account"))
-            .font(.largeTitle.bold())
-            .multilineTextAlignment(.center)
-            .padding(.top, 50)
+        VStack {
+            // App icon
+            Image(systemName: "graduationcap.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.accentColor)
+                .padding(.bottom, 10)
+                
+            Text(LocalizedStringKey("create_account"))
+                .font(.largeTitle.bold())
+                .multilineTextAlignment(.center)
+        }
+        .padding(.top, 30)
     }
     
     private var formView: some View {
         VStack(spacing: 15) {
-            TextField(LocalizedStringKey("email"), text: $email)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-                .focused($focusedField, equals: .email)
-                .submitLabel(.next)
-                .onSubmit {
-                    focusedField = .password
+            // Email alanı
+            VStack(alignment: .leading, spacing: 5) {
+                Text(LocalizedStringKey("email"))
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .padding(.leading, 4)
+                
+                HStack {
+                    Image(systemName: "envelope")
+                        .foregroundColor(.secondary)
+                    
+                    TextField(LocalizedStringKey("email"), text: $email)
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .autocapitalization(.none)
+                        .focused($focusedField, equals: .email)
+                        .submitLabel(.next)
+                        .onSubmit {
+                            focusedField = .password
+                        }
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .background(Color(.systemBackground).cornerRadius(12))
+                )
+            }
             
-            SecureField(LocalizedStringKey("password"), text: $password)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-                .textContentType(.newPassword)
-                .focused($focusedField, equals: .password)
-                .submitLabel(.next)
-                .onSubmit {
-                    focusedField = .university
+            // Şifre alanı
+            VStack(alignment: .leading, spacing: 5) {
+                Text(LocalizedStringKey("password"))
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .padding(.leading, 4)
+                
+                HStack {
+                    Image(systemName: "lock")
+                        .foregroundColor(.secondary)
+                    
+                    if showPassword {
+                        TextField(LocalizedStringKey("password"), text: $password)
+                            .textContentType(.newPassword)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .university
+                            }
+                    } else {
+                        SecureField(LocalizedStringKey("password"), text: $password)
+                            .textContentType(.newPassword)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .university
+                            }
+                    }
+                    
+                    // Şifre görünürlük butonu
+                    Button(action: { showPassword.toggle() }) {
+                        Image(systemName: showPassword ? "eye.slash" : "eye")
+                            .foregroundColor(.secondary)
+                    }
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .background(Color(.systemBackground).cornerRadius(12))
+                )
+            }
             
-            TextField(LocalizedStringKey("university"), text: $university)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-                .textContentType(.organizationName)
-                .focused($focusedField, equals: .university)
-                .submitLabel(.next)
-                .onSubmit {
-                    focusedField = .department
+            // Üniversite alanı
+            VStack(alignment: .leading, spacing: 5) {
+                Text(LocalizedStringKey("university"))
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .padding(.leading, 4)
+                
+                HStack {
+                    Image(systemName: "building.columns")
+                        .foregroundColor(.secondary)
+                    
+                    TextField(LocalizedStringKey("university"), text: $university)
+                        .textContentType(.organizationName)
+                        .focused($focusedField, equals: .university)
+                        .submitLabel(.next)
+                        .onSubmit {
+                            focusedField = .department
+                        }
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .background(Color(.systemBackground).cornerRadius(12))
+                )
+            }
             
-            TextField(LocalizedStringKey("department"), text: $department)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-                .textContentType(.none)
-                .focused($focusedField, equals: .department)
-                .submitLabel(.done)
-                .onSubmit {
-                    handleSignup()
+            // Bölüm alanı
+            VStack(alignment: .leading, spacing: 5) {
+                Text(LocalizedStringKey("department"))
+                    .foregroundColor(.secondary)
+                    .font(.caption)
+                    .padding(.leading, 4)
+                
+                HStack {
+                    Image(systemName: "book")
+                        .foregroundColor(.secondary)
+                    
+                    TextField(LocalizedStringKey("department"), text: $department)
+                        .textContentType(.none)
+                        .focused($focusedField, equals: .department)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            handleSignup()
+                        }
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        .background(Color(.systemBackground).cornerRadius(12))
+                )
+            }
         }
         .padding(.top, 20)
     }
@@ -127,10 +233,16 @@ struct SignupView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.accentColor)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.7)]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
             .foregroundColor(.white)
-            .cornerRadius(10)
-            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+            .cornerRadius(15)
+            .shadow(color: Color.accentColor.opacity(0.3), radius: 5, x: 0, y: 2)
         }
         .disabled(!isFormValid() || isLoading)
         .opacity(isFormValid() && !isLoading ? 1 : 0.6)
@@ -149,6 +261,12 @@ struct SignupView: View {
     private func handleSignup() {
         guard validateForm() else { return }
         
+        // İnternet bağlantısı kontrolü
+        if !NetworkManager.shared.isConnected {
+            // İnternet bağlantısı yoksa, ToastView gösterme (ConnectionAlert zaten gösterilecek)
+            return
+        }
+        
         isLoading = true
         authViewModel.signup(
             email: email,
@@ -157,13 +275,17 @@ struct SignupView: View {
             department: department
         ) { success, messageKey in
             isLoading = false
+            
+            // Bağlantı hatası durumunda toast gösterme (NetworkManager.swift'te alert gösterilecek)
+            if messageKey == "error_no_connection" {
+                return
+            }
+            
             if success {
-                toastMessage = messageKey ?? "verification_email_sent"
+                registeredEmail = email
+                toastMessage = "verification_email_sent"
                 withAnimation { showToast = true }
-                // 2 saniye sonra Login ekranına yönlendirme
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    dismiss()
-                }
+                showVerificationAlert = true
             } else {
                 toastMessage = messageKey ?? "error_unknown"
                 withAnimation { showToast = true }

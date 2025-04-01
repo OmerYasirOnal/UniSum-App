@@ -19,6 +19,35 @@ class TermViewModel: ObservableObject {
         }
     }
     
+    // Her bir dönem için derslerini getir
+    private func fetchCoursesForTerms() {
+        for (index, term) in terms.enumerated() {
+            fetchCoursesForTerm(at: index, termId: term.id)
+        }
+    }
+    
+    // Belirli bir dönem için derslerini getir
+    private func fetchCoursesForTerm(at index: Int, termId: Int) {
+        networkManager.get(endpoint: "/terms/\(termId)/courses", requiresAuth: true) { [weak self] (result: Result<[Course], Error>) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                
+                switch result {
+                case .success(let courses):
+                    // Mevcut termin kopyasını al
+                    var updatedTerm = self.terms[index]
+                    // Dersleri ekle
+                    updatedTerm.courses = courses
+                    // Güncellenen terimi yerleştir
+                    self.terms[index] = updatedTerm
+                    
+                case .failure(let error):
+                    print("Dönem \(termId) için dersler getirilirken hata oluştu: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
     func addTerm(classLevel: String, termNumber: Int) {
         guard let userId = UserDefaults.standard.string(forKey: "userId") else {
             self.errorMessage = "Kullanıcı kimliği bulunamadı"
@@ -54,6 +83,9 @@ class TermViewModel: ObservableObject {
         case .success(let terms):
             self.terms = terms
             self.errorMessage = ""
+            
+            // Dönemler yüklendikten sonra her bir dönem için dersleri yükle
+            fetchCoursesForTerms()
             
         case .failure(let error):
             handleError(error)

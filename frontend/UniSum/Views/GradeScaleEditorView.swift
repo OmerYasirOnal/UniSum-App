@@ -20,7 +20,7 @@ struct GradeScaleEditorView: View {
                     }
                 }
             }
-            .navigationTitle(NSLocalizedString("grade_scale", comment: "Grade Scale header title"))
+            .navigationTitle(LocalizedStringKey("grade_scale_editor_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

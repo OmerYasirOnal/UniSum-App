@@ -57,6 +57,7 @@ struct AddCourseView: View {
             Text(LocalizedStringKey("add_course"))
                 .font(.title2)
                 .bold()
+                .padding(.bottom, 8)
             
             Spacer()
             
@@ -74,7 +75,7 @@ struct AddCourseView: View {
             // Ders Adı
             OptimizedTextField(
                 title: LocalizedStringKey("course_name"),
-                placeholder: "Ders adını giriniz",
+                placeholder: LocalizedStringKey("course_name_placeholder"),
                 text: $courseName,
                 keyboardType: .default,
                 submitLabel: .next,
@@ -235,7 +236,7 @@ struct AddCourseView: View {
 // MARK: - OptimizedTextField
 struct OptimizedTextField: View {
     let title: LocalizedStringKey
-    let placeholder: String
+    let placeholder: LocalizedStringKey
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
     var submitLabel: SubmitLabel = .done
