@@ -5,4 +5,5 @@ struct User: Codable, Identifiable {
     let email: String
     let university: String
     let department: String
+    let verified: Bool
 }

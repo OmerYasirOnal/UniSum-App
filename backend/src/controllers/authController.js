@@ -257,36 +257,163 @@ async function resetPassword(req, res) {
     }
 }
 
+/**
+ * Token yenileme
+ */
 async function refreshToken(req, res) {
     const { refreshToken } = req.body;
-    
-    if (!refreshToken) {
-        return res.status(400).json({ message: "Refresh token is required" });
-    }
-    
-    // Refresh token'ı kullanan kullanıcıyı bul
-    const user = await User.findOne({ where: { refreshToken } });
-    if (!user) {
-        return res.status(401).json({ message: "Invalid refresh token" });
-    }
-    
-    // Token süresinin geçerliliğini kontrol et
-    if (user.refreshTokenExpires < new Date()) {
-        return res.status(401).json({ message: "Refresh token expired" });
-    }
-    
-    // Yeni access token üret (örneğin, 1 saat geçerli)
-    const newAccessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
-    
-    // İsteğe bağlı: Token rotasyonu yaparak yeni refresh token da oluşturabilirsiniz.
-    // Örneğin:
-    // const newRefreshToken = crypto.randomBytes(64).toString("hex");
-    // const newRefreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    // user.refreshToken = newRefreshToken;
-    // user.refreshTokenExpires = newRefreshTokenExpires;
-    // await user.save();
-    // return res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
 
-    return res.status(200).json({ accessToken: newAccessToken });
+    if (!refreshToken) {
+        logger.error("Token Yenileme: Refresh token sağlanmadı");
+        return res.status(400).json({
+            success: false,
+            message: "error_refresh_token_required"
+        });
+    }
+
+    try {
+        const user = await User.findOne({ where: { refreshToken } });
+        if (!user || !user.refreshTokenExpires || user.refreshTokenExpires < new Date()) {
+            logger.error("Token Yenileme: Geçersiz veya süresi dolmuş refresh token");
+            return res.status(401).json({
+                success: false,
+                message: "error_invalid_refresh_token"
+            });
+        }
+
+        // Yeni access token oluşturma
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+        
+        // Yeni refresh token oluşturma
+        const newRefreshToken = crypto.randomBytes(64).toString("hex");
+        const refreshTokenExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        // Refresh token bilgilerini güncelle
+        user.refreshToken = newRefreshToken;
+        user.refreshTokenExpires = refreshTokenExpires;
+        await user.save();
+
+        logger.info(`Token Yenileme: Token yenilendi. User ID: ${user.id}`);
+        return res.status(200).json({ 
+            token,
+            refreshToken: newRefreshToken,
+            user
+        });
+    } catch (error) {
+        logger.error(`Token yenileme hatası: ${error.message}`);
+        return res.status(500).json({
+            success: false,
+            message: "error_token_refresh",
+            error: error.message
+        });
+    }
 }
-module.exports = { signup, login, verifyEmail, requestPasswordReset, resetPassword, deleteAccount, refreshToken };
+
+/**
+ * E-posta doğrulama durumunu kontrol etme
+ */
+async function checkVerification(req, res) {
+    const { email } = req.body;
+
+    if (!email) {
+        logger.error("Doğrulama Kontrolü: E-posta adresi sağlanmadı");
+        return res.status(400).json({
+            success: false,
+            message: "error_email_required"
+        });
+    }
+
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            logger.error(`Doğrulama Kontrolü: Kullanıcı bulunamadı - ${email}`);
+            return res.status(404).json({
+                success: false,
+                message: "error_user_not_found",
+                data: { verified: false }
+            });
+        }
+
+        logger.info(`Doğrulama Kontrolü: Durum kontrol edildi - ${email}, Verified: ${user.verified}`);
+        return res.status(200).json({
+            success: true,
+            message: user.verified ? "email_verified" : "email_not_verified",
+            data: { verified: user.verified }
+        });
+    } catch (error) {
+        logger.error(`Doğrulama kontrolü hatası: ${error.message}`);
+        return res.status(500).json({
+            success: false,
+            message: "error_verification_check",
+            error: error.message
+        });
+    }
+}
+
+/**
+ * Doğrulama e-postasını yeniden gönderme
+ */
+async function resendVerification(req, res) {
+    const { email } = req.body;
+
+    if (!email) {
+        logger.error("Doğrulama Yeniden Gönderme: E-posta adresi sağlanmadı");
+        return res.status(400).json({
+            success: false,
+            message: "error_email_required"
+        });
+    }
+
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            logger.error(`Doğrulama Yeniden Gönderme: Kullanıcı bulunamadı - ${email}`);
+            return res.status(404).json({
+                success: false,
+                message: "error_user_not_found"
+            });
+        }
+
+        if (user.verified) {
+            logger.info(`Doğrulama Yeniden Gönderme: Kullanıcı zaten doğrulanmış - ${email}`);
+            return res.status(200).json({
+                success: true,
+                message: "email_already_verified"
+            });
+        }
+
+        const verificationToken = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "24h" }
+        );
+
+        const verificationLink = await sendVerificationEmail(email, verificationToken);
+        logger.info(`Doğrulama Yeniden Gönderme: E-posta gönderildi - ${email}`);
+
+        return res.status(200).json({
+            success: true,
+            message: "verification_email_sent",
+            verificationLink: verificationLink
+        });
+    } catch (error) {
+        logger.error(`Doğrulama e-postası yeniden gönderme hatası: ${error.message}`);
+        return res.status(500).json({
+            success: false,
+            message: "error_resend_verification",
+            error: error.message
+        });
+    }
+}
+
+module.exports = {
+    signup,
+    login,
+    verifyEmail,
+    requestPasswordReset,
+    resetPassword,
+    refreshToken,
+    checkVerification,
+    resendVerification,
+    deleteAccount
+};

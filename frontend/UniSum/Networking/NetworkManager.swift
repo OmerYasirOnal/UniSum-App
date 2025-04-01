@@ -50,7 +50,9 @@ class NetworkManager {
            
            URLSession.shared.dataTask(with: request) { data, response, error in
                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                   NotificationCenter.default.post(name: Notification.Name("TokenExpired"), object: nil)
+                   DispatchQueue.main.async {
+                       NotificationCenter.default.post(name: Notification.Name("TokenExpired"), object: nil)
+                   }
                    completion(.failure(NetworkError.unauthorized))
                    return
                }
@@ -126,6 +128,13 @@ class NetworkManager {
     
     // MARK: - Helper Types
     private struct EmptyResponse: Decodable {}
+}
+
+// MARK: - API Response Structure
+struct ApiResponse<T: Codable>: Codable {
+    let success: Bool
+    let message: String?
+    let data: T?
 }
 
 // MARK: - Network Error Types

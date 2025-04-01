@@ -14,7 +14,9 @@ const {
     requestPasswordReset, 
     resetPassword, 
     deleteAccount,
-    refreshToken
+    refreshToken,
+    checkVerification,
+    resendVerification
 } = require("../controllers/authController");
 
 /**
@@ -58,6 +60,20 @@ router.post("/reset-password", authLimiter, validatePasswordReset, resetPassword
  * @access  Public
  */
 router.post("/refresh-token", refreshToken);
+
+/**
+ * @route   POST /auth/check-verification
+ * @desc    E-posta doğrulama durumunu kontrol etme
+ * @access  Public
+ */
+router.post("/check-verification", authLimiter, checkVerification);
+
+/**
+ * @route   POST /auth/resend-verification
+ * @desc    Doğrulama e-postasını yeniden gönderme
+ * @access  Public
+ */
+router.post("/resend-verification", authLimiter, resendVerification);
 
 /**
  * @route   DELETE /auth/delete-account
